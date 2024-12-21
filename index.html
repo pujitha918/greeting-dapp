@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Greeting DApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Decentralized Greeting DApp</h1>
+    <p id="currentGreeting"></p>
+    <input type="text" id="newGreeting" placeholder="Enter new greeting" />
+    <button onclick="updateGreeting()">Set Greeting</button>
+
+    <script>
+        let web3 = new Web3(Web3.givenProvider || "http://127.0.0.1:7545");
+        let contractAddress = "0x5cAa7039b44edB4011b9E2a18f927b8540F0798B";
+        let abi = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_greeting",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [],
+                "name": "greeting",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function",
+                "constant": true
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_newGreeting",
+                        "type": "string"
+                    }
+                ],
+                "name": "updateGreeting",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        let contract = new web3.eth.Contract(abi, contractAddress);
+
+        async function loadGreeting() {
+            const greeting = await contract.methods.greeting().call();  // Corrected to "greeting"
+            document.getElementById("currentGreeting").innerText = `Current Greeting: ${greeting}`;  // Corrected string interpolation
+        }
+
+        async function updateGreeting() {
+            const accounts = await web3.eth.getAccounts();
+            const newGreeting = document.getElementById("newGreeting").value;
+            await contract.methods.updateGreeting(newGreeting).send({ from: accounts[0] });  // Corrected to "updateGreeting"
+            loadGreeting();
+        }
+
+        loadGreeting();  // Initially load the current greeting
+    </script>
+</body>
+</html>
